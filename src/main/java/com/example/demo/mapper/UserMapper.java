@@ -1,10 +1,7 @@
 package com.example.demo.mapper;
 
 import com.example.demo.model.User;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -42,4 +39,23 @@ SET balance = #{balance}
 WHERE id = #{id}
 """)
     int updateBalance(@Param("id") Long id, @Param("balance") BigDecimal balance);
+
+    @Insert("""
+        INSERT INTO users (name, password_hash, country)
+        VALUES (#{name}, #{passwordHash}, #{country})
+    """)
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+    int createUser(User user);
+
+    @Select("""
+SELECT id,
+       name,
+       password_hash AS passwordHash,
+       balance,
+       country,
+       created_at AS createdAt
+       FROM users
+       WHERE name = #{name}
+""")
+    User findUserByName(String name);
 }

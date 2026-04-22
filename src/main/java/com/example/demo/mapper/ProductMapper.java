@@ -40,4 +40,17 @@ public interface ProductMapper {
     """)
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int createProduct(Product product);
+
+    @Select("""
+        SELECT id,
+               seller_id AS sellerId,
+               title,
+               description,
+               price,
+               stock,
+               created_at AS createdAt
+        FROM products
+        WHERE seller_id = #{sellerId}
+    """)
+    List<Product> findAllProductsBySellerId(Long sellerId);
 }

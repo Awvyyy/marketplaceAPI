@@ -83,4 +83,8 @@ public class ProductService {
 
         return productMapper.findById(product.getId());
     }
+
+    public List<Product> getAllProductsByUserId(Long sellerId){
+        return productMapper.findAllProductsBySellerId(sellerId);
+    }
 }

@@ -32,11 +32,11 @@ public class User {
         this.name = name;
     }
 
-    public String getPassword_hash() {
+    public String getPasswordHash() {
         return passwordHash;
     }
 
-    public void setPassword_hash(String password_hash) {
+    public void setPasswordHash(String password_hash) {
         this.passwordHash = password_hash;
     }
 
