@@ -16,7 +16,8 @@ SELECT id,
        password_hash AS passwordHash,
        balance,
        country,
-       created_at AS createdAt
+       created_at AS createdAt,
+       sales
        FROM users
 """)
     List<User> findAll();
@@ -27,7 +28,8 @@ SELECT id,
        password_hash AS passwordHash,
        balance,
        country,
-       created_at AS createdAt
+       created_at AS createdAt,
+       sales
        FROM users
 WHERE id = #{id}
 """)
@@ -53,9 +55,17 @@ SELECT id,
        password_hash AS passwordHash,
        balance,
        country,
-       created_at AS createdAt
+       created_at AS createdAt,
+       sales
        FROM users
        WHERE name = #{name}
 """)
-    User findUserByName(String name);
+    User getUserByName(String name);
+
+    @Update("""
+UPDATE users
+SET sales = #{sales}
+WHERE id = #{id}
+""")
+    int updateSales(@Param("id") Long id, @Param("sales") int sales);
 }

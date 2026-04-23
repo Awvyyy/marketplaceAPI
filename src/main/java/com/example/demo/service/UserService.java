@@ -2,17 +2,19 @@ package com.example.demo.service;
 
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service
 public class UserService {
 
     private final UserMapper userMapper;
-    public UserService(UserMapper userMapper) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<User> getAllUsers(){
@@ -27,21 +29,24 @@ public class UserService {
         return user;
     }
 
-    public User createUser(String name, String passwordHash, String country){
+    public User createUser(String name, String password, String country){
         if (name == null || name.isEmpty()){
             throw new RuntimeException("Username cannot be null or empty");
         }
-        if (passwordHash == null || passwordHash.isEmpty()){
+        if (password == null || password.isEmpty()){
             throw new RuntimeException("Password cannot be null or empty");
         }
         if (country == null || country.isEmpty()){
             throw new RuntimeException("Country cannot be null or empty");
         }
 
+        if (userMapper.getUserByName(name) != null){
+            throw new RuntimeException("Username already exists");
+        }
+
         User user = new User();
         user.setName(name);
-        user.setPasswordHash(passwordHash);
-        user.setBalance(BigDecimal.ZERO);
+        user.setPasswordHash(passwordEncoder.encode(password));
         user.setCountry(country);
 
         int createdRows = userMapper.createUser(user);
@@ -60,12 +65,12 @@ public class UserService {
             throw new RuntimeException("Password cannot be null or empty");
         }
 
-        User user = userMapper.findUserByName(name);
+        User user = userMapper.getUserByName(name);
         if (user == null){
-            throw new RuntimeException("User not found");
+            throw new RuntimeException("Invalid username or password");
         }
 
-        if (!user.getPasswordHash().equals(password)){
+        if (!passwordEncoder.matches(password, user.getPasswordHash())){
             throw new RuntimeException("Invalid username or password");
         }
 

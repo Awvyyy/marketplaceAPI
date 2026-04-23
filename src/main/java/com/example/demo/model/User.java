@@ -12,6 +12,7 @@ public class User {
     private BigDecimal balance;
     private String country;
     private Instant createdAt;
+    private int sales;
 
     public User() {
     }
@@ -62,5 +63,13 @@ public class User {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public int getSales() {
+        return sales;
+    }
+
+    public void setSales(int sales) {
+        this.sales = sales;
     }
 }

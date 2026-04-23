@@ -53,4 +53,11 @@ public interface ProductMapper {
         WHERE seller_id = #{sellerId}
     """)
     List<Product> findAllProductsBySellerId(Long sellerId);
+
+    @Update("""
+    UPDATE products
+    SET stock = #{stock}
+    WHERE id = #{id}
+""")
+    int updateStock(@Param("id") Long id, @Param("stock") int stock);
 }

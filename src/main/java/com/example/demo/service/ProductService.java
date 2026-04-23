@@ -59,14 +59,16 @@ public class ProductService {
             throw new RuntimeException("User not found");
         }
 
-        if (user.getBalance().compareTo(price) < 0){
-            throw new RuntimeException("Insufficient funds");
-        }
+        if (user.getSales() < 2) {
+            if (user.getBalance().compareTo(price) < 0) {
+                throw new RuntimeException("Insufficient funds");
+            }
 
-        BigDecimal newBalance = user.getBalance().subtract(price);
-        int updatedRows = userMapper.updateBalance(sellerId, newBalance);
-        if (updatedRows != 1) {
-            throw new RuntimeException("Failed to update user balance");
+            BigDecimal newBalance = user.getBalance().subtract(price);
+            int updatedRows = userMapper.updateBalance(sellerId, newBalance);
+            if (updatedRows != 1) {
+                throw new RuntimeException("Failed to update user balance");
+            }
         }
 
         Product product = new Product();

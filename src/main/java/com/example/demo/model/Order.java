@@ -13,6 +13,7 @@ public class Order {
     private Long sellerId;
     private Long productId;
     private BigDecimal orderPrice;
+    private int amount;
     private String destination;
     private String status;
     private Instant createdAt;
@@ -83,4 +84,9 @@ public class Order {
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
+
+    public int getAmount() {
+        return amount;
+    }
+    public void setAmount(int amount) {}
 }
