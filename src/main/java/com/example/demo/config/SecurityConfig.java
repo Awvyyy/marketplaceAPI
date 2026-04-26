@@ -25,6 +25,10 @@ public class SecurityConfig {
                         .requestMatchers("/products/**").permitAll()
                         .requestMatchers("/users/**").permitAll()
                         .requestMatchers("/orders/**").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form.disable())
