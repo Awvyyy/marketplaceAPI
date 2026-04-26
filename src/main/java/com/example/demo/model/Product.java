@@ -13,6 +13,8 @@ public class Product {
     private BigDecimal price;
     private int stock;
     private Instant createdAt;
+    private BigDecimal creationFee;
+    private boolean creationFeeRefunded;
 
     public Product() {
     }
@@ -71,5 +73,21 @@ public class Product {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public BigDecimal getCreationFee() {
+        return creationFee;
+    }
+
+    public void setCreationFee(BigDecimal creationFee) {
+        this.creationFee = creationFee;
+    }
+
+    public boolean isCreationFeeRefunded() {
+        return creationFeeRefunded;
+    }
+
+    public void setCreationFeeRefunded(boolean creationFeeRefunded) {
+        this.creationFeeRefunded = creationFeeRefunded;
     }
 }

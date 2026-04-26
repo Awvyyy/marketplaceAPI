@@ -271,10 +271,11 @@ class OrderServiceTest {
     }
 
     @Test
-    void updateStatus_completed_updatesSellerBalanceAndSales() {
+    void updateStatus_completed_updatesSellerBalanceSalesAndRefundsCreationFee() {
         Order existingOrder = new Order();
         existingOrder.setId(1L);
         existingOrder.setSellerId(3L);
+        existingOrder.setProductId(5L);
         existingOrder.setOrderPrice(new BigDecimal("250.00"));
         existingOrder.setStatus("READY_TO_CLAIM");
 
@@ -283,17 +284,28 @@ class OrderServiceTest {
         seller.setBalance(new BigDecimal("100.00"));
         seller.setSales(2);
 
+        Product product = new Product();
+        product.setId(5L);
+        product.setCreationFee(new BigDecimal("50.00"));
+        product.setCreationFeeRefunded(false);
+
         Order completedOrder = new Order();
         completedOrder.setId(1L);
         completedOrder.setSellerId(3L);
+        completedOrder.setProductId(5L);
         completedOrder.setOrderPrice(new BigDecimal("250.00"));
         completedOrder.setStatus("COMPLETED");
 
         when(orderMapper.findById(1L)).thenReturn(existingOrder, completedOrder);
         when(orderMapper.updateStatus(1L, "COMPLETED")).thenReturn(1);
         when(userMapper.getUserById(3L)).thenReturn(seller);
+
         when(userMapper.updateBalance(3L, new BigDecimal("350.00"))).thenReturn(1);
         when(userMapper.updateSales(3L, 3)).thenReturn(1);
+
+        when(productMapper.findById(5L)).thenReturn(product);
+        when(userMapper.updateBalance(3L, new BigDecimal("400.00"))).thenReturn(1);
+        when(productMapper.markCreationFeeRefunded(5L)).thenReturn(1);
 
         Order result = orderService.updateStatus(1L, "COMPLETED");
 
@@ -303,5 +315,53 @@ class OrderServiceTest {
         verify(orderMapper).updateStatus(1L, "COMPLETED");
         verify(userMapper).updateBalance(3L, new BigDecimal("350.00"));
         verify(userMapper).updateSales(3L, 3);
+        verify(productMapper).findById(5L);
+        verify(userMapper).updateBalance(3L, new BigDecimal("400.00"));
+        verify(productMapper).markCreationFeeRefunded(5L);
+    }
+
+    @Test
+    void updateStatus_completed_updatesSellerBalanceAndSales_withoutRefundWhenCreationFeeIsZero() {
+        Order existingOrder = new Order();
+        existingOrder.setId(1L);
+        existingOrder.setSellerId(3L);
+        existingOrder.setProductId(5L);
+        existingOrder.setOrderPrice(new BigDecimal("250.00"));
+        existingOrder.setStatus("READY_TO_CLAIM");
+
+        User seller = new User();
+        seller.setId(3L);
+        seller.setBalance(new BigDecimal("100.00"));
+        seller.setSales(2);
+
+        Product product = new Product();
+        product.setId(5L);
+        product.setCreationFee(BigDecimal.ZERO);
+        product.setCreationFeeRefunded(false);
+
+        Order completedOrder = new Order();
+        completedOrder.setId(1L);
+        completedOrder.setSellerId(3L);
+        completedOrder.setProductId(5L);
+        completedOrder.setOrderPrice(new BigDecimal("250.00"));
+        completedOrder.setStatus("COMPLETED");
+
+        when(orderMapper.findById(1L)).thenReturn(existingOrder, completedOrder);
+        when(orderMapper.updateStatus(1L, "COMPLETED")).thenReturn(1);
+        when(userMapper.getUserById(3L)).thenReturn(seller);
+        when(userMapper.updateBalance(3L, new BigDecimal("350.00"))).thenReturn(1);
+        when(userMapper.updateSales(3L, 3)).thenReturn(1);
+        when(productMapper.findById(5L)).thenReturn(product);
+
+        Order result = orderService.updateStatus(1L, "COMPLETED");
+
+        assertNotNull(result);
+        assertEquals("COMPLETED", result.getStatus());
+
+        verify(orderMapper).updateStatus(1L, "COMPLETED");
+        verify(userMapper).updateBalance(3L, new BigDecimal("350.00"));
+        verify(userMapper).updateSales(3L, 3);
+        verify(productMapper).findById(5L);
+        verify(productMapper, never()).markCreationFeeRefunded(anyLong());
     }
 }

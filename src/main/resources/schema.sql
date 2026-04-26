@@ -20,7 +20,9 @@ CREATE TABLE IF NOT EXISTS products (
     description TEXT NOT NULL,
     price DECIMAL(12, 2) NOT NULL CHECK (price > 0),
     stock INT NOT NULL DEFAULT 0 CHECK (stock >= 0),
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    creation_fee DECIMAL(12, 2) NOT NULL DEFAULT 0,
+    creation_fee_refunded BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 /* id, buyer_id, seller_id, product_id, order_price, destination, status (ORDERED/SHIPPED/READY_TO_CLAIM/COMPLETED), created_at */

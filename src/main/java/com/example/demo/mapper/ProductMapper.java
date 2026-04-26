@@ -15,7 +15,9 @@ public interface ProductMapper {
                description,
                price,
                stock,
-               created_at AS createdAt
+               created_at AS createdAt,
+               creation_fee AS creationFee,
+               creation_fee_refunded AS creationFeeRefunded
         FROM products
         ORDER BY created_at DESC
     """)
@@ -28,16 +30,18 @@ public interface ProductMapper {
                description,
                price,
                stock,
-               created_at AS createdAt
+               created_at AS createdAt,
+               creation_fee AS creationFee,
+               creation_fee_refunded AS creationFeeRefunded
         FROM products
         WHERE id = #{id}
     """)
     Product findById(Long id);
 
     @Insert("""
-        INSERT INTO products (seller_id, title, description, price, stock)
-        VALUES (#{sellerId}, #{title}, #{description}, #{price}, #{stock})
-    """)
+    INSERT INTO products (seller_id, title, description, price, stock, creation_fee, creation_fee_refunded)
+    VALUES (#{sellerId}, #{title}, #{description}, #{price}, #{stock}, #{creationFee}, #{creationFeeRefunded})
+""")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int createProduct(Product product);
 
@@ -48,7 +52,9 @@ public interface ProductMapper {
                description,
                price,
                stock,
-               created_at AS createdAt
+               created_at AS createdAt,
+               creation_fee AS creationFee,
+               creation_fee_refunded AS creationFeeRefunded
         FROM products
         WHERE seller_id = #{sellerId}
     """)
@@ -60,4 +66,12 @@ public interface ProductMapper {
     WHERE id = #{id}
 """)
     int updateStock(@Param("id") Long id, @Param("stock") int stock);
+
+    @Update("""
+    UPDATE products
+    SET creation_fee_refunded = true
+    WHERE id = #{id}
+      AND creation_fee_refunded = false
+""")
+    int markCreationFeeRefunded(@Param("id") Long id);
 }

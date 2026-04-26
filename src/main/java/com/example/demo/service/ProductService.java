@@ -37,7 +37,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Product createProduct(Long sellerId, String title, String description, BigDecimal price, int stock){
+    public Product createProduct(Long sellerId, String title, String description, BigDecimal price, int stock) {
         if (sellerId == null) {
             throw new BadRequestException("Seller id cannot be null");
         }
@@ -50,18 +50,20 @@ public class ProductService {
             throw new BadRequestException("Description cannot be empty");
         }
 
-        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0){
+        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("Price cannot be null or 0");
         }
 
-        if (stock < 0){
+        if (stock < 0) {
             throw new BadRequestException("Stock cannot be less than 0");
         }
 
         User user = userMapper.getUserById(sellerId);
-        if (user == null){
+        if (user == null) {
             throw new NotFoundException("User not found");
         }
+
+        BigDecimal creationFee = BigDecimal.ZERO;
 
         if (user.getSales() < 2) {
             if (user.getBalance().compareTo(price) < 0) {
@@ -73,6 +75,8 @@ public class ProductService {
             if (updatedRows != 1) {
                 throw new ConflictException("Failed to update user balance");
             }
+
+            creationFee = price;
         }
 
         Product product = new Product();
@@ -81,6 +85,8 @@ public class ProductService {
         product.setDescription(description);
         product.setPrice(price);
         product.setStock(stock);
+        product.setCreationFee(creationFee);
+        product.setCreationFeeRefunded(false);
 
         int insertedRows = productMapper.createProduct(product);
         if (insertedRows != 1) {

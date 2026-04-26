@@ -167,6 +167,28 @@ public class OrderService {
             if (updatedSellerSalesRows != 1) {
                 throw new ConflictException("Failed to update seller sales");
             }
+
+            Product product = productMapper.findById(order.getProductId());
+            if (product == null) {
+                throw new NotFoundException("Product not found");
+            }
+
+            if (product.getCreationFee() != null
+                    && product.getCreationFee().compareTo(BigDecimal.ZERO) > 0
+                    && !product.isCreationFeeRefunded()) {
+
+                BigDecimal refundedSellerBalance = newSellerBalance.add(product.getCreationFee());
+
+                int refundedBalanceRows = userMapper.updateBalance(seller.getId(), refundedSellerBalance);
+                if (refundedBalanceRows != 1) {
+                    throw new ConflictException("Failed to refund product creation fee");
+                }
+
+                int refundedFeeRows = productMapper.markCreationFeeRefunded(product.getId());
+                if (refundedFeeRows != 1) {
+                    throw new ConflictException("Failed to mark creation fee as refunded");
+                }
+            }
         }
 
         return orderMapper.findById(id);
