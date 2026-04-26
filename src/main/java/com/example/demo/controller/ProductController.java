@@ -4,6 +4,7 @@ import com.example.demo.dto.request.CreateProductRequestDto;
 import com.example.demo.dto.response.ProductResponseDto;
 import com.example.demo.model.Product;
 import com.example.demo.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,8 +39,8 @@ public class ProductController {
         return toResponse(product);
     }
 
-    @PostMapping
-    public ProductResponseDto createProduct(@RequestBody CreateProductRequestDto request) {
+    @PostMapping()
+    public ProductResponseDto createProduct(@Valid @RequestBody CreateProductRequestDto request) {
         Product product = productService.createProduct(request.getSellerId(), request.getTitle(),
         request.getDescription(), request.getPrice(), request.getStock());
 

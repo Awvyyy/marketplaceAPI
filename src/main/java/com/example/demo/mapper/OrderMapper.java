@@ -17,8 +17,9 @@ public interface OrderMapper {
                order_price AS orderPrice,
                destination,
                status,
+               amount,
                created_at AS createdAt,
-               amount
+               updated_at AS updatedAt
         FROM orders
         ORDER BY created_at DESC
     """)
@@ -32,8 +33,9 @@ public interface OrderMapper {
                order_price AS orderPrice,
                destination,
                status,
+               amount,
                created_at AS createdAt,
-               amount
+               updated_at AS updatedAt
         FROM orders
         WHERE id = #{id}
     """)
@@ -47,8 +49,9 @@ public interface OrderMapper {
                order_price AS orderPrice,
                destination,
                status,
+               amount,
                created_at AS createdAt,
-               amount
+               updated_at AS updatedAt
         FROM orders
         WHERE seller_id = #{sellerId}
     """)
@@ -62,8 +65,9 @@ public interface OrderMapper {
                order_price AS orderPrice,
                destination,
                status,
+               amount,
                created_at AS createdAt,
-               amount
+               updated_at AS updatedAt
         FROM orders
         WHERE buyer_id = #{buyerId}
     """)
@@ -71,7 +75,8 @@ public interface OrderMapper {
 
     @Update("""
     UPDATE orders
-    SET status = #{status}
+    SET status = #{status},
+        updated_at = CURRENT_TIMESTAMP
     WHERE id = #{id}
 """)
     int updateStatus(@Param("id") Long id, @Param("status") String status);
@@ -82,4 +87,5 @@ public interface OrderMapper {
     """)
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int createOrder(Order order);
+
 }

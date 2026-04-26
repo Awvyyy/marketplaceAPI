@@ -1,13 +1,10 @@
-package com.example.demo.model;
-
-
-// id, buyer_id, seller_id, product_id, order_price, destination, status (ORDERED/SHIPPED/READY_TO_CLAIM/COMPLETED), created_at
-
+package com.example.demo.dto.response;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public class Order {
+public class OrderResponseDto {
+
     private Long id;
     private Long buyerId;
     private Long sellerId;
@@ -19,7 +16,17 @@ public class Order {
     private Instant createdAt;
     private Instant updatedAt;
 
-    public Order() {
+    public OrderResponseDto(Long id, Long buyerId, Long sellerId, Long productId, BigDecimal orderPrice, int amount, String destination, String status, Instant createdAt, Instant updatedAt) {
+        this.id = id;
+        this.buyerId = buyerId;
+        this.sellerId = sellerId;
+        this.productId = productId;
+        this.orderPrice = orderPrice;
+        this.amount = amount;
+        this.destination = destination;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public Long getId() {
@@ -62,6 +69,14 @@ public class Order {
         this.orderPrice = orderPrice;
     }
 
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
     public String getDestination() {
         return destination;
     }
@@ -86,18 +101,14 @@ public class Order {
         this.createdAt = createdAt;
     }
 
-    public int getAmount() {
-        return amount;
-    }
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
-
     public Instant getUpdatedAt() {
         return updatedAt;
     }
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public OrderResponseDto() {
     }
 }

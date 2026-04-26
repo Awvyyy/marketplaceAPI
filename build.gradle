@@ -23,6 +23,7 @@ dependencies {
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:4.0.1'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-amqp-test'
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:4.0.1'

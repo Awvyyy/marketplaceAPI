@@ -8,12 +8,14 @@ public class UserResponseDto {
     private String name;
     private BigDecimal balance;
     private String country;
+    private int sales;
 
-    public UserResponseDto(Long id, String name, BigDecimal balance, String country) {
+    public UserResponseDto(Long id, String name, BigDecimal balance, String country, int sales) {
         this.id = id;
         this.name = name;
         this.balance = balance;
         this.country = country;
+        this.sales = sales;
     }
 
     public Long getId() {
@@ -46,5 +48,13 @@ public class UserResponseDto {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public int getSales() {
+        return sales;
+    }
+
+    public void setSales(int sales) {
+        this.sales = sales;
     }
 }

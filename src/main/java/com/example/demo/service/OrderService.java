@@ -1,5 +1,8 @@
 package com.example.demo.service;
 
+import com.example.demo.exceptions.BadRequestException;
+import com.example.demo.exceptions.ConflictException;
+import com.example.demo.exceptions.NotFoundException;
 import com.example.demo.mapper.OrderMapper;
 import com.example.demo.mapper.ProductMapper;
 import com.example.demo.mapper.UserMapper;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class OrderService {
@@ -24,58 +28,66 @@ public class OrderService {
         this.userMapper = userMapper;
     }
 
+    public List<Order> getOrdersByBuyerId(Long buyerId){
+        if (buyerId == null){
+            throw new NotFoundException("User not found");
+        }
+
+        return orderMapper.findOrdersByBuyerId(buyerId);
+    }
+
     @Transactional
     public Order createOrder(Long buyerId, Long productId, String destination, int amount) {
         if (buyerId == null) {
-            throw new RuntimeException("buyerId cannot be null");
+            throw new BadRequestException("buyerId cannot be null");
         }
 
         if (productId == null) {
-            throw new RuntimeException("productId cannot be null");
+            throw new BadRequestException("productId cannot be null");
         }
 
         if (destination == null || destination.isBlank()) {
-            throw new RuntimeException("Destination cannot be null or empty");
+            throw new BadRequestException("Destination cannot be null or empty");
         }
 
         if (amount <= 0) {
-            throw new RuntimeException("Amount must be greater than 0");
+            throw new BadRequestException("Amount must be greater than 0");
         }
 
         User buyer = userMapper.getUserById(buyerId);
         if (buyer == null) {
-            throw new RuntimeException("Buyer not found");
+            throw new NotFoundException("Buyer not found");
         }
 
         Product product = productMapper.findById(productId);
         if (product == null) {
-            throw new RuntimeException("Product not found");
+            throw new NotFoundException("Product not found");
         }
 
         if (buyer.getId().equals(product.getSellerId())) {
-            throw new RuntimeException("Cannot buy your own product");
+            throw new ConflictException("Cannot buy your own product");
         }
 
         if (product.getStock() < amount) {
-            throw new RuntimeException("Not enough product stock");
+            throw new ConflictException("Not enough product stock");
         }
 
         BigDecimal totalPrice = product.getPrice().multiply(BigDecimal.valueOf(amount));
 
         if (buyer.getBalance().compareTo(totalPrice) < 0) {
-            throw new RuntimeException("Insufficient funds");
+            throw new ConflictException("Insufficient funds");
         }
 
         BigDecimal newBuyerBalance = buyer.getBalance().subtract(totalPrice);
         int updatedBuyerRows = userMapper.updateBalance(buyerId, newBuyerBalance);
         if (updatedBuyerRows != 1) {
-            throw new RuntimeException("Failed to update buyer balance");
+            throw new ConflictException("Failed to update buyer balance");
         }
 
         int newStock = product.getStock() - amount;
         int updatedStockRows = productMapper.updateStock(productId, newStock);
         if (updatedStockRows != 1) {
-            throw new RuntimeException("Failed to update product stock");
+            throw new ConflictException("Failed to update product stock");
         }
 
         Order order = new Order();
@@ -88,7 +100,7 @@ public class OrderService {
 
         int insertedRows = orderMapper.createOrder(order);
         if (insertedRows != 1) {
-            throw new RuntimeException("Failed to create order");
+            throw new ConflictException("Failed to create order");
         }
 
         return orderMapper.findById(order.getId());
@@ -96,12 +108,12 @@ public class OrderService {
 
     public Order getOrderById(Long id) {
         if (id == null) {
-            throw new RuntimeException("Order id cannot be null");
+            throw new BadRequestException("Order id cannot be null");
         }
 
         Order order = orderMapper.findById(id);
         if (order == null) {
-            throw new RuntimeException("Order not found");
+            throw new NotFoundException("Order not found");
         }
 
         return order;
@@ -110,16 +122,16 @@ public class OrderService {
     @Transactional
     public Order updateStatus(Long id, String newStatus) {
         if (id == null) {
-            throw new RuntimeException("Order id cannot be null");
+            throw new BadRequestException("Order id cannot be null");
         }
 
         if (newStatus == null || newStatus.isBlank()) {
-            throw new RuntimeException("Status cannot be null or empty");
+            throw new BadRequestException("Status cannot be null or empty");
         }
 
         Order order = orderMapper.findById(id);
         if (order == null) {
-            throw new RuntimeException("Order not found");
+            throw new NotFoundException("Order not found");
         }
 
         String currentStatus = order.getStatus();
@@ -130,33 +142,39 @@ public class OrderService {
                         ("READY_TO_CLAIM".equals(currentStatus) && "COMPLETED".equals(newStatus));
 
         if (!validTransition) {
-            throw new RuntimeException("Invalid status transition");
+            throw new BadRequestException("Invalid status transition");
         }
 
         int updatedRows = orderMapper.updateStatus(id, newStatus);
         if (updatedRows != 1) {
-            throw new RuntimeException("Failed to update order status");
+            throw new ConflictException("Failed to update order status");
         }
 
         if ("COMPLETED".equals(newStatus)) {
             User seller = userMapper.getUserById(order.getSellerId());
             if (seller == null) {
-                throw new RuntimeException("Seller not found");
+                throw new NotFoundException("Seller not found");
             }
 
             BigDecimal newSellerBalance = seller.getBalance().add(order.getOrderPrice());
             int updatedSellerRows = userMapper.updateBalance(seller.getId(), newSellerBalance);
             if (updatedSellerRows != 1) {
-                throw new RuntimeException("Failed to update seller balance");
+                throw new ConflictException("Failed to update seller balance");
             }
 
             int newSellerSales = seller.getSales() + 1;
             int updatedSellerSalesRows = userMapper.updateSales(seller.getId(), newSellerSales);
             if (updatedSellerSalesRows != 1) {
-                throw new RuntimeException("Failed to update seller sales");
+                throw new ConflictException("Failed to update seller sales");
             }
         }
 
         return orderMapper.findById(id);
     }
+
+    public List<Order> getAllOrders (){
+        return  orderMapper.findAll();
+    }
+
+
 }

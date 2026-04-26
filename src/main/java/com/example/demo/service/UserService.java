@@ -1,5 +1,8 @@
 package com.example.demo.service;
 
+import com.example.demo.exceptions.BadRequestException;
+import com.example.demo.exceptions.ConflictException;
+import com.example.demo.exceptions.NotFoundException;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,24 +27,24 @@ public class UserService {
     public User getUserById(Long id){
         User user = userMapper.getUserById(id);
         if (user == null){
-            throw new RuntimeException("User not found");
+            throw new NotFoundException("User not found");
         }
         return user;
     }
 
     public User createUser(String name, String password, String country){
         if (name == null || name.isEmpty()){
-            throw new RuntimeException("Username cannot be null or empty");
+            throw new BadRequestException("Username cannot be null or empty");
         }
         if (password == null || password.isEmpty()){
-            throw new RuntimeException("Password cannot be null or empty");
+            throw new BadRequestException("Password cannot be null or empty");
         }
         if (country == null || country.isEmpty()){
-            throw new RuntimeException("Country cannot be null or empty");
+            throw new BadRequestException("Country cannot be null or empty");
         }
 
         if (userMapper.getUserByName(name) != null){
-            throw new RuntimeException("Username already exists");
+            throw new ConflictException("Username already exists");
         }
 
         User user = new User();
@@ -51,27 +54,27 @@ public class UserService {
 
         int createdRows = userMapper.createUser(user);
         if (createdRows != 1){
-            throw new RuntimeException("Unable to create user");
+            throw new ConflictException("Unable to create user");
         }
         return userMapper.getUserById(user.getId());
     }
 
     public User loginUser(String name, String password){
         if (name == null || name.isEmpty()){
-            throw new RuntimeException("Username cannot be null or empty");
+            throw new BadRequestException("Username cannot be null or empty");
         }
 
         if (password == null || password.isEmpty()){
-            throw new RuntimeException("Password cannot be null or empty");
+            throw new BadRequestException("Password cannot be null or empty");
         }
 
         User user = userMapper.getUserByName(name);
         if (user == null){
-            throw new RuntimeException("Invalid username or password");
+            throw new BadRequestException("Invalid username or password");
         }
 
         if (!passwordEncoder.matches(password, user.getPasswordHash())){
-            throw new RuntimeException("Invalid username or password");
+            throw new BadRequestException("Invalid username or password");
         }
 
         return user;

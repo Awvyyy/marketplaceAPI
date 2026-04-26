@@ -9,8 +9,8 @@ public class ProductResponseDto {
     private String title;
     private String description;
     private BigDecimal price;
-    int stock;
-    Instant createdAt;
+    private int stock;
+    private Instant createdAt;
 
     public ProductResponseDto(Long id, Long sellerId, String title, String description, BigDecimal price, int stock, Instant createdAt) {
         this.id = id;

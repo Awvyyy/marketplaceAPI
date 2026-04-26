@@ -1,12 +1,28 @@
 package com.example.demo.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+
 import java.math.BigDecimal;
 
 public class CreateProductRequestDto {
-    Long sellerId;
-    String title;
-    String description;
-    BigDecimal price;
+
+    @NotNull
+    private Long sellerId;
+
+    @NotBlank
+    private String title;
+
+    @NotBlank
+    private String description;
+
+    @Positive
+    @NotNull
+    private BigDecimal price;
+
+    @PositiveOrZero
     int stock;
 
     public CreateProductRequestDto() {

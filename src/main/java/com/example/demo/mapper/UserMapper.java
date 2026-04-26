@@ -1,5 +1,6 @@
 package com.example.demo.mapper;
 
+import com.example.demo.model.Order;
 import com.example.demo.model.User;
 import org.apache.ibatis.annotations.*;
 

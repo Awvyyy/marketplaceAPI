@@ -1,8 +1,13 @@
 package com.example.demo.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class LoginRequestDto {
 
+    @NotBlank
     private String name;
+
+    @NotBlank
     private String password;
 
     public LoginRequestDto() {
